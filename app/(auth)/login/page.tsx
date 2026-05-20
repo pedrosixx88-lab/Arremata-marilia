@@ -43,8 +43,7 @@ export default function LoginPage() {
       }
 
       toast.success('Bem-vindo de volta!')
-      // O onAuthStateChange na Navbar atualiza o store — não há race condition
-      router.push('/dashboard')
+      router.push('/anuncios')
       router.refresh()
     } catch {
       toast.error('Ocorreu um erro. Tente novamente.')
