@@ -1,10 +1,11 @@
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ShieldCheck, MapPin, Truck, Clock, Gavel, ChevronLeft } from 'lucide-react'
+import { ShieldCheck, MapPin, Truck, ChevronLeft, Gavel } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { formatDistanceToNow, format } from 'date-fns'
+import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { BidsSection } from '@/components/bids/bids-section'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -41,53 +42,62 @@ export default async function ListingDetailPage({ params }: PageProps) {
   const { id } = await params
   const supabase = await createClient()
 
-  const { data: listing } = await supabase
-    .from('listings')
-    .select(`
-      id,
-      title,
-      description,
-      current_bid,
-      starting_bid,
-      reserve_price,
-      min_increment,
-      bid_count,
-      ends_at,
-      photo_urls,
-      neighborhood,
-      delivery_type,
-      status,
-      created_at,
-      seller_id,
-      category_id,
-      profiles!seller_id (
+  const [{ data: listing }, { data: { user } }] = await Promise.all([
+    supabase
+      .from('listings')
+      .select(`
         id,
-        full_name,
-        avatar_url,
-        verification_status,
-        reputation_score,
-        total_sales,
-        created_at
-      ),
-      categories!category_id (name)
-    `)
-    .eq('id', id)
-    .single()
+        title,
+        description,
+        current_bid,
+        starting_bid,
+        reserve_price,
+        min_increment,
+        bid_count,
+        ends_at,
+        photo_urls,
+        neighborhood,
+        delivery_type,
+        status,
+        created_at,
+        seller_id,
+        category_id,
+        profiles!seller_id (
+          id,
+          full_name,
+          avatar_url,
+          verification_status,
+          reputation_score,
+          total_sales,
+          created_at
+        ),
+        categories!category_id (name)
+      `)
+      .eq('id', id)
+      .single(),
+    supabase.auth.getUser(),
+  ])
 
   if (!listing || listing.status !== 'ativo') notFound()
 
   const seller = Array.isArray(listing.profiles) ? listing.profiles[0] : listing.profiles
   const category = Array.isArray(listing.categories) ? listing.categories[0] : listing.categories
-  const currentBid = listing.current_bid ?? listing.starting_bid
-  const endsAt = new Date(listing.ends_at)
-  const isEnded = endsAt <= new Date()
 
+  // Busca os últimos 20 lances para o histórico inicial
   const { data: recentBids } = await supabase
     .from('bids')
-    .select('id, amount, created_at')
+    .select('id, amount, created_at, bidder_id, is_auto')
     .eq('listing_id', id)
     .order('created_at', { ascending: false })
-    .limit(10)
+    .limit(20)
+
+  const initialBids = (recentBids ?? []).map((b) => ({
+    id: b.id,
+    amount: b.amount,
+    created_at: b.created_at,
+    bidder_id: b.bidder_id,
+    is_auto: b.is_auto ?? false,
+  }))
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -153,28 +163,18 @@ export default async function ListingDetailPage({ params }: PageProps) {
               </div>
             </div>
 
-            {/* Lance atual + timer */}
-            <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 space-y-2">
-              <div>
-                <p className="text-xs text-gray-500">{listing.bid_count > 0 ? 'Lance atual' : 'Lance mínimo'}</p>
-                <p className="text-3xl font-bold text-gray-900">{formatCurrency(currentBid)}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{listing.bid_count} {listing.bid_count === 1 ? 'lance' : 'lances'} • Incremento mínimo: {formatCurrency(listing.min_increment)}</p>
-              </div>
-
-              <div className={`flex items-center gap-1.5 text-sm font-medium ${isEnded ? 'text-gray-500' : 'text-orange-600'}`}>
-                <Clock className="w-4 h-4" />
-                {isEnded
-                  ? `Encerrado em ${format(endsAt, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`
-                  : `Termina em ${formatDistanceToNow(endsAt, { locale: ptBR })}`}
-              </div>
-
-              {/* Placeholder de lance — implementado no M4 */}
-              {!isEnded && (
-                <div className="pt-2 border-t border-orange-200">
-                  <p className="text-xs text-gray-400 text-center">Sistema de lances disponível em breve.</p>
-                </div>
-              )}
-            </div>
+            {/* Seção de lances em tempo real */}
+            <BidsSection
+              listingId={listing.id}
+              initialCurrentBid={listing.current_bid ?? listing.starting_bid}
+              initialBidCount={listing.bid_count ?? 0}
+              initialBids={initialBids}
+              initialEndsAt={listing.ends_at}
+              minIncrement={listing.min_increment}
+              startingBid={listing.starting_bid}
+              currentUserId={user?.id}
+              sellerId={listing.seller_id}
+            />
 
             {/* Vendedor */}
             {seller && (
@@ -204,26 +204,6 @@ export default async function ListingDetailPage({ params }: PageProps) {
                   </p>
                 </div>
               </Link>
-            )}
-
-            {/* Histórico de lances recente */}
-            {recentBids && recentBids.length > 0 && (
-              <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">Últimos lances</h3>
-                <div className="space-y-1.5">
-                  {recentBids.map((bid) => (
-                    <div key={bid.id} className="flex justify-between text-sm">
-                      <span className="text-gray-500">Usuário anônimo</span>
-                      <div className="text-right">
-                        <span className="font-medium text-gray-900">{formatCurrency(bid.amount)}</span>
-                        <span className="text-gray-400 text-xs ml-2">
-                          {formatDistanceToNow(new Date(bid.created_at), { addSuffix: true, locale: ptBR })}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
             )}
           </div>
         </div>
