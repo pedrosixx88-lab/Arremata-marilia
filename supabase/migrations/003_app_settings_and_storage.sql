@@ -70,5 +70,5 @@ create policy "listing_photos_upload_authenticated" on storage.objects
 
 create policy "listing_photos_delete_own" on storage.objects
   for delete using (
-    bucket_id = 'listing-photos' and auth.uid()::text = owner
+    bucket_id = 'listing-photos' and auth.uid() = owner::uuid
   );
