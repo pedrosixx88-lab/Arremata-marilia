@@ -41,7 +41,7 @@ export default function CadastroPage() {
         if (error.code === 'user_already_exists') {
           toast.error('Este e-mail já está cadastrado. Faça login ou recupere sua senha.')
         } else {
-          toast.error('Erro ao criar conta. Tente novamente.')
+          toast.error('Ocorreu um erro ao criar a conta. Tente novamente.')
         }
         return
       }
