@@ -1,0 +1,41 @@
+import * as React from 'react'
+
+interface Props {
+  nome: string
+}
+
+export function VerificationApprovedEmail({ nome }: Props) {
+  return (
+    <div style={{ fontFamily: 'sans-serif', maxWidth: 560, margin: '0 auto', padding: '40px 24px', color: '#111827' }}>
+      <h1 style={{ fontSize: 24, fontWeight: 700, color: '#f97316', marginBottom: 8 }}>
+        ArremataMarília
+      </h1>
+      <h2 style={{ fontSize: 18, fontWeight: 600, marginTop: 32, marginBottom: 8 }}>
+        Parabéns, {nome}! Identidade verificada ✓
+      </h2>
+      <p style={{ fontSize: 14, color: '#6b7280', lineHeight: 1.6, marginBottom: 24 }}>
+        Sua identidade foi verificada com sucesso. Agora você pode criar anúncios no ArremataMarília e participar de lances como vendedor.
+      </p>
+      <a
+        href={`${process.env.NEXT_PUBLIC_APP_URL}/anunciar`}
+        style={{
+          display: 'inline-block',
+          backgroundColor: '#f97316',
+          color: '#fff',
+          fontWeight: 600,
+          fontSize: 14,
+          padding: '12px 24px',
+          borderRadius: 8,
+          textDecoration: 'none',
+          marginBottom: 24,
+        }}
+      >
+        Criar meu primeiro anúncio
+      </a>
+      <hr style={{ border: 'none', borderTop: '1px solid #e5e7eb', margin: '24px 0' }} />
+      <p style={{ fontSize: 11, color: '#d1d5db' }}>
+        ArremataMarília — O marketplace de lances de Marília/SP
+      </p>
+    </div>
+  )
+}
