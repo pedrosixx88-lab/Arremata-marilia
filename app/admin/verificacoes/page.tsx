@@ -50,7 +50,7 @@ export default function VerificacoesPage() {
     setIsLoading(false)
   }, [])
 
-  useEffect(() => { loadData() }, [loadData])
+  useEffect(() => { void loadData() }, [loadData])
 
   async function toggleAutoApprove() {
     const newVal = !autoApprove

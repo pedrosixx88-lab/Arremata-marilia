@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { ShieldCheck, Users, LayoutDashboard, ListChecks } from 'lucide-react'
+import { ShieldCheck, Users, LayoutDashboard, ListChecks, AlertTriangle } from 'lucide-react'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -46,6 +46,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           >
             <ListChecks className="w-4 h-4 text-gray-400" />
             Moderação
+          </Link>
+          <Link
+            href="/admin/denuncias"
+            className="flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+          >
+            <AlertTriangle className="w-4 h-4 text-gray-400" />
+            Denúncias
           </Link>
           <Link
             href="/admin/usuarios"

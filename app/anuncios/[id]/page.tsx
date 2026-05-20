@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { BidsSection } from '@/components/bids/bids-section'
+import { ReportModal } from '@/components/reports/report-modal'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -213,6 +214,13 @@ export default async function ListingDetailPage({ params }: PageProps) {
           <h2 className="text-base font-semibold text-gray-900 mb-3">Descrição</h2>
           <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">{listing.description}</p>
         </div>
+
+        {/* Denúncia */}
+        {user && user.id !== listing.seller_id && (
+          <div className="mt-3 flex justify-end">
+            <ReportModal listingId={listing.id} isLoggedIn={!!user} />
+          </div>
+        )}
       </div>
     </div>
   )

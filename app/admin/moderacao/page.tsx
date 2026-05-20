@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { CheckCircle, XCircle, Eye, ChevronDown, ChevronUp } from 'lucide-react'
@@ -194,7 +194,7 @@ export default function ModeracaoPage() {
   const [listings, setListings] = useState<Listing[]>([])
   const [loading, setLoading] = useState(true)
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true)
     try {
       const res = await fetch('/api/admin/moderacao')
@@ -204,9 +204,9 @@ export default function ModeracaoPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { void load() }, [load])
 
   return (
     <div>
