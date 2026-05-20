@@ -8,13 +8,11 @@ import { toast } from 'sonner'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { loginSchema, type LoginFormData } from '@/lib/validators/auth'
-import { useAuthStore } from '@/store/auth-store'
 
 export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const supabase = createClient()
-  const { setUser, setSession } = useAuthStore()
 
   const {
     register,
@@ -27,25 +25,25 @@ export default function LoginPage() {
   async function onSubmit(data: LoginFormData) {
     setIsLoading(true)
     try {
-      const { data: authData, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.senha,
       })
 
       if (error) {
-        if (error.message.includes('Email not confirmed')) {
+        // Usa error.code para não depender do texto da mensagem em inglês
+        if (error.code === 'email_not_confirmed') {
           toast.error('Confirme seu e-mail antes de fazer login.')
-        } else if (error.message.includes('Invalid login credentials')) {
+        } else if (error.code === 'invalid_credentials') {
           toast.error('E-mail ou senha incorretos.')
         } else {
-          toast.error(error.message)
+          toast.error('Erro ao fazer login. Tente novamente.')
         }
         return
       }
 
-      setUser(authData.user)
-      setSession(authData.session)
       toast.success('Bem-vindo de volta!')
+      // O onAuthStateChange na Navbar atualiza o store — não há race condition
       router.push('/dashboard')
       router.refresh()
     } catch {

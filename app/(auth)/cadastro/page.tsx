@@ -33,15 +33,15 @@ export default function CadastroPage() {
             nome: data.nome,
             cpf: data.cpf,
           },
-          emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin}/auth/callback`,
         },
       })
 
       if (error) {
-        if (error.message.includes('already registered')) {
+        if (error.code === 'user_already_exists') {
           toast.error('Este e-mail já está cadastrado. Faça login ou recupere sua senha.')
         } else {
-          toast.error(error.message)
+          toast.error('Erro ao criar conta. Tente novamente.')
         }
         return
       }

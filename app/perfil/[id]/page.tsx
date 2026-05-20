@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
@@ -30,7 +31,7 @@ export default async function PerfilPage({ params }: PerfilPageProps) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('*')
+    .select('id, full_name, avatar_url, verification_status, reputation_score, total_sales, neighborhood, created_at')
     .eq('id', id)
     .single()
 
@@ -50,9 +51,11 @@ export default async function PerfilPage({ params }: PerfilPageProps) {
         <div className="flex items-start gap-6">
           <div className="shrink-0">
             {profile.avatar_url ? (
-              <img
+              <Image
                 src={profile.avatar_url}
                 alt={displayName}
+                width={80}
+                height={80}
                 className="w-20 h-20 rounded-full object-cover border-2 border-gray-100"
               />
             ) : (

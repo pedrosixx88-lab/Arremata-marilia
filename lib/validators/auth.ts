@@ -8,7 +8,8 @@ export const cadastroSchema = z
     cpf: z
       .string()
       .min(1, 'CPF é obrigatório')
-      .refine((val) => cpf.isValid(val), 'CPF inválido'),
+      .refine((val) => cpf.isValid(val), 'CPF inválido')
+      .transform((val) => val.replace(/\D/g, '')), // armazena apenas dígitos
     senha: z
       .string()
       .min(8, 'Senha deve ter ao menos 8 caracteres')
