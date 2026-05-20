@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { User, LogOut, LayoutDashboard, BadgeCheck, ChevronDown } from 'lucide-react'
@@ -96,7 +97,7 @@ export function Navbar() {
                 >
                   <div className="w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-semibold text-xs overflow-hidden shrink-0">
                     {profile?.avatar_url ? (
-                      <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                      <Image src={profile.avatar_url} alt="" fill className="object-cover" />
                     ) : (
                       (profile?.full_name ?? user.email ?? '?').charAt(0).toUpperCase()
                     )}
