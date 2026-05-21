@@ -249,8 +249,20 @@ export default function VendedorDashboard() {
               closedListings.map(l => {
                 const st = STATUS_LABEL[l.status] ?? STATUS_LABEL.encerrado
                 const winner = Array.isArray(l.winner) ? l.winner[0] : l.winner
+                const isConfirmed = l.status === 'arremate_confirmado'
+                const CardWrapper = isConfirmed
+                  ? ({ children }: { children: React.ReactNode }) => (
+                      <Link href={`/arremates/${l.id}`} className="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:border-orange-200 transition-colors">
+                        {children}
+                      </Link>
+                    )
+                  : ({ children }: { children: React.ReactNode }) => (
+                      <div className="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl">
+                        {children}
+                      </div>
+                    )
                 return (
-                  <div key={l.id} className="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl">
+                  <CardWrapper key={l.id}>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">{l.title}</p>
                       <div className="flex items-center gap-2 mt-0.5 text-xs">
@@ -269,13 +281,13 @@ export default function VendedorDashboard() {
                       <p className="text-base font-bold text-gray-900">
                         {formatCurrency(l.current_bid ?? l.starting_bid)}
                       </p>
-                      {l.status === 'arremate_confirmado' && (
+                      {isConfirmed && (
                         <p className="text-xs text-green-600 font-medium">
                           {formatCurrency((l.current_bid ?? 0) * 0.9)} líquido
                         </p>
                       )}
                     </div>
-                  </div>
+                  </CardWrapper>
                 )
               })
             )}

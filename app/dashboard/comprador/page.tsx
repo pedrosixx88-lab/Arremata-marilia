@@ -226,7 +226,7 @@ export default function CompradorDashboard() {
               wonListings.map(l => (
                 <Link
                   key={l.id}
-                  href={`/anuncios/${l.id}`}
+                  href={`/arremates/${l.id}`}
                   className="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:border-orange-200 transition-colors"
                 >
                   <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-100 shrink-0">
