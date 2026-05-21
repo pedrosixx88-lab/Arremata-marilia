@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { User, LogOut, LayoutDashboard, BadgeCheck, ChevronDown } from 'lucide-react'
+import { User, LogOut, LayoutDashboard, BadgeCheck, ChevronDown, Crown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/auth-store'
 import { NotificationBell } from '@/components/notifications/notification-bell'
@@ -131,6 +131,14 @@ export function Navbar() {
                     >
                       <User className="w-4 h-4 text-gray-400" />
                       Meu perfil
+                    </Link>
+                    <Link
+                      href="/premium"
+                      onClick={() => setDropdownOpen(false)}
+                      className="flex items-center gap-2.5 px-3 py-2 text-sm text-orange-600 hover:bg-orange-50 transition-colors"
+                    >
+                      <Crown className="w-4 h-4 text-orange-500" />
+                      {profile?.is_premium ? 'Plano Premium' : 'Assinar Premium'}
                     </Link>
                     <div className="border-t border-gray-100 my-1" />
                     <button

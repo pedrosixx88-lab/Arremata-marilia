@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Clock, Gavel, ShieldCheck } from 'lucide-react'
+import { Clock, Gavel, ShieldCheck, Crown } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
@@ -14,6 +14,7 @@ interface ListingCardProps {
   cover_photo_url: string | null
   neighborhood: string
   seller_verified: boolean
+  seller_premium?: boolean
 }
 
 function formatCurrency(value: number) {
@@ -37,6 +38,7 @@ export function ListingCard({
   cover_photo_url,
   neighborhood,
   seller_verified,
+  seller_premium = false,
 }: ListingCardProps) {
   const displayBid = current_bid > 0 ? current_bid : starting_bid
   const timeLeft = getTimeLeft(ends_at)
@@ -60,12 +62,20 @@ export function ListingCard({
               <Gavel className="w-10 h-10" />
             </div>
           )}
-          {seller_verified && (
-            <span className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5 flex items-center gap-1 text-xs font-medium text-green-600">
-              <ShieldCheck className="w-3 h-3" />
-              Verificado
-            </span>
-          )}
+          <div className="absolute top-2 left-2 flex flex-col gap-1">
+            {seller_premium && (
+              <span className="bg-orange-500 rounded-full px-2 py-0.5 flex items-center gap-1 text-xs font-bold text-white">
+                <Crown className="w-3 h-3" />
+                Premium
+              </span>
+            )}
+            {seller_verified && (
+              <span className="bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5 flex items-center gap-1 text-xs font-medium text-green-600">
+                <ShieldCheck className="w-3 h-3" />
+                Verificado
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="p-3 space-y-2">
