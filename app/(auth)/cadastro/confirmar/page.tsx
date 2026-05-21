@@ -20,12 +20,20 @@ export default function ConfirmarEmailPage() {
         </Link>
         .
       </p>
-      <Link
-        href="/login"
-        className="text-sm text-orange-500 hover:underline font-medium"
-      >
-        Voltar para o login
-      </Link>
+      <div className="flex flex-col gap-2 items-center">
+        <Link
+          href="/onboarding"
+          className="text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600 px-5 py-2.5 rounded-xl transition-colors"
+        >
+          Ver como funciona
+        </Link>
+        <Link
+          href="/login"
+          className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          Ir para o login
+        </Link>
+      </div>
     </div>
   )
 }
