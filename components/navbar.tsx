@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import { User, LogOut, LayoutDashboard, BadgeCheck, ChevronDown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/auth-store'
+import { NotificationBell } from '@/components/notifications/notification-bell'
 import type { Profile } from '@/types'
 
 export function Navbar() {
@@ -89,6 +90,8 @@ export function Navbar() {
               >
                 Anúncios
               </Link>
+
+              <NotificationBell userId={user.id} />
 
               <div className="relative" ref={dropdownRef}>
                 <button
