@@ -147,6 +147,12 @@ export function Navbar() {
           ) : (
             <>
               <Link
+                href="/como-funciona"
+                className="hidden sm:inline-flex text-sm text-gray-600 hover:text-gray-900 transition-colors px-3 py-1.5 rounded-lg hover:bg-gray-50"
+              >
+                Como funciona
+              </Link>
+              <Link
                 href="/login"
                 className="text-sm text-gray-600 hover:text-gray-900 transition-colors px-3 py-1.5 rounded-lg hover:bg-gray-50"
               >
