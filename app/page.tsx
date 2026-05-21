@@ -133,10 +133,10 @@ export default async function HomePage() {
               Ver guia completo <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="grid md:grid-cols-3 gap-px bg-gray-100 rounded-2xl overflow-hidden">
+          <div className="grid md:grid-cols-3 gap-6">
             {HOW_IT_WORKS.map((item) => (
-              <div key={item.number} className="bg-white p-8">
-                <p className="text-5xl font-black text-gray-100 mb-6 leading-none">{item.number}</p>
+              <div key={item.number} className="bg-gray-50 rounded-2xl p-8 border border-gray-100">
+                <p className="text-4xl font-black text-orange-400 mb-6 leading-none">{item.number}</p>
                 <h3 className="text-lg font-bold text-gray-900 mb-2">{item.title}</h3>
                 <p className="text-sm text-gray-500 leading-relaxed">{item.description}</p>
               </div>
