@@ -18,18 +18,22 @@ interface Notification {
 }
 
 const TYPE_ICON: Record<string, React.ReactNode> = {
-  new_message:  <MessageSquare className="w-4 h-4 text-blue-500" />,
-  new_review:   <Star className="w-4 h-4 text-yellow-500" />,
-  bid_placed:   <Gavel className="w-4 h-4 text-orange-500" />,
-  bid_beaten:   <Gavel className="w-4 h-4 text-red-500" />,
-  auction_won:  <Gavel className="w-4 h-4 text-green-500" />,
+  new_message:     <MessageSquare className="w-4 h-4 text-blue-500" />,
+  new_review:      <Star className="w-4 h-4 text-yellow-500" />,
+  bid_placed:      <Gavel className="w-4 h-4 text-orange-500" />,
+  bid_beaten:      <Gavel className="w-4 h-4 text-red-500" />,
+  auction_won:     <Gavel className="w-4 h-4 text-green-500" />,
+  dispute_opened:  <Bell className="w-4 h-4 text-red-500" />,
+  dispute_updated: <Bell className="w-4 h-4 text-blue-500" />,
 }
 
 function notificationHref(n: Notification): string | null {
   const d = n.data
   if (!d) return null
-  if (n.type === 'new_message' && d.listing_id) return `/mensagens/${d.listing_id}`
-  if (n.type === 'new_review'  && d.listing_id) return `/arremates/${d.listing_id}`
+  if (n.type === 'new_message'    && d.listing_id) return `/mensagens/${d.listing_id}`
+  if (n.type === 'new_review'     && d.listing_id) return `/arremates/${d.listing_id}`
+  if (n.type === 'dispute_opened' && d.dispute_id) return `/disputas/${d.dispute_id}`
+  if (n.type === 'dispute_updated'&& d.dispute_id) return `/disputas/${d.dispute_id}`
   if (d.listing_id) return `/anuncios/${d.listing_id}`
   return null
 }
