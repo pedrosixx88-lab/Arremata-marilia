@@ -29,11 +29,19 @@ export default async function PerfilPage({ params }: PerfilPageProps) {
   const { id } = await params
   const supabase = await createClient()
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id, full_name, avatar_url, verification_status, reputation_score, total_sales, neighborhood, created_at')
-    .eq('id', id)
-    .single()
+  const [{ data: profile }, { data: reviews }] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url, verification_status, reputation_score, total_sales, neighborhood, created_at')
+      .eq('id', id)
+      .single(),
+    supabase
+      .from('reviews')
+      .select('id, rating, comment, created_at, reviewer:profiles!reviewer_id(full_name)')
+      .eq('reviewee_id', id)
+      .order('created_at', { ascending: false })
+      .limit(10),
+  ])
 
   if (!profile) notFound()
 
@@ -107,6 +115,39 @@ export default async function PerfilPage({ params }: PerfilPageProps) {
           </div>
         )}
       </div>
+
+      {/* Avaliações */}
+      {reviews && reviews.length > 0 && (
+        <div className="mt-6 bg-white rounded-2xl border border-gray-200 p-6">
+          <h2 className="text-base font-semibold text-gray-900 mb-4">
+            Avaliações recebidas ({reviews.length})
+          </h2>
+          <div className="space-y-4">
+            {reviews.map((r) => {
+              const reviewer = Array.isArray(r.reviewer) ? r.reviewer[0] : r.reviewer
+              return (
+                <div key={r.id} className="pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-sm font-medium text-gray-900">{reviewer?.full_name ?? 'Usuário'}</p>
+                    <div className="flex items-center gap-0.5">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`w-3.5 h-3.5 ${i < r.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200'}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  {r.comment && <p className="text-sm text-gray-600">{r.comment}</p>}
+                  <p className="text-xs text-gray-400 mt-1">
+                    {formatDistanceToNow(new Date(r.created_at), { addSuffix: true, locale: ptBR })}
+                  </p>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </main>
   )
 }

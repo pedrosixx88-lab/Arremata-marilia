@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 
 export async function GET() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Não autenticado.' }, { status: 401 })
+
+  const service = createServiceClient()
 
   // Lances ativos do comprador (anúncios ainda em andamento)
   const { data: activeBids } = await supabase
@@ -28,8 +30,8 @@ export async function GET() {
     return true
   })
 
-  // Arremates ganhos pelo comprador
-  const { data: wonListings } = await supabase
+  // Arremates ganhos pelo comprador — usa service role pois a RLS restringe winner_id
+  const { data: wonListings } = await service
     .from('listings')
     .select('id, title, current_bid, ends_at, status, photo_urls, seller:profiles!seller_id(full_name)')
     .eq('winner_id', user.id)
