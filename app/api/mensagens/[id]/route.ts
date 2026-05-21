@@ -73,7 +73,8 @@ export async function POST(req: NextRequest, { params }: Params) {
 
   const receiver_id = listing.seller_id === user.id ? listing.winner_id : listing.seller_id
 
-  const { data: message, error } = await supabase
+  // Usa service role no INSERT para evitar falha na subquery RLS de messages_insert
+  const { data: message, error } = await service
     .from('messages')
     .insert({ listing_id, sender_id: user.id, receiver_id, content })
     .select('id, content, sender_id, created_at, read_at')
@@ -81,9 +82,33 @@ export async function POST(req: NextRequest, { params }: Params) {
 
   if (error) return NextResponse.json({ error: 'Erro ao enviar mensagem.' }, { status: 500 })
 
+  // Broadcast via Realtime REST API — não precisa de WebSocket no servidor
+  try {
+    await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/realtime/v1/api/broadcast`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
+        },
+        body: JSON.stringify({
+          messages: [
+            {
+              topic: `chat-broadcast:${listing_id}`,
+              event: 'new_message',
+              payload: message,
+            },
+          ],
+        }),
+      }
+    )
+  } catch { /* non-critical */ }
+
   // Notifica o receptor
   try {
-    await supabase.from('notifications').insert({
+    await service.from('notifications').insert({
       user_id: receiver_id,
       type: 'new_message',
       title: 'Nova mensagem',

@@ -22,17 +22,17 @@ export function useChatRealtime(listingId: string, initialMessages: ChatMessage[
   }, [])
 
   useEffect(() => {
+    if (!listingId) return
     const supabase = createClient()
 
+    // Broadcast channel — não depende de RLS, funciona para ambas as partes
     const channel = supabase
-      .channel(`chat:${listingId}`)
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages', filter: `listing_id=eq.${listingId}` },
-        (payload) => {
-          addMessage(payload.new as ChatMessage)
-        }
-      )
+      .channel(`chat-broadcast:${listingId}`, {
+        config: { broadcast: { self: false } },
+      })
+      .on('broadcast', { event: 'new_message' }, ({ payload }) => {
+        addMessage(payload as ChatMessage)
+      })
       .subscribe()
 
     return () => {
