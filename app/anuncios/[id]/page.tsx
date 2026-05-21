@@ -17,15 +17,36 @@ export async function generateMetadata({ params }: PageProps) {
   const supabase = await createClient()
   const { data } = await supabase
     .from('listings')
-    .select('title, description')
+    .select('title, description, photo_urls, current_bid')
     .eq('id', id)
     .single()
 
   if (!data) return { title: 'Anúncio não encontrado' }
 
+  const title = `${data.title} — ArremataMarília`
+  const description = data.description.slice(0, 160)
+  const image = data.photo_urls?.[0] ?? null
+  const price = data.current_bid
+    ? `Lance atual: R$ ${Number(data.current_bid).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+    : undefined
+
   return {
-    title: `${data.title} — ArremataMarília`,
-    description: data.description.slice(0, 160),
+    title,
+    description: price ? `${price} · ${description}` : description,
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      locale: 'pt_BR',
+      siteName: 'ArremataMarília',
+      ...(image ? { images: [{ url: image, width: 800, height: 600, alt: data.title }] } : {}),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      ...(image ? { images: [image] } : {}),
+    },
   }
 }
 

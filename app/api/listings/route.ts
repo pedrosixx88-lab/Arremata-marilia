@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { listingSchema } from '@/lib/validators/listing'
+import { rateLimit } from '@/lib/rate-limit'
 
 const BUCKET = 'listing-photos'
 const MAX_PHOTOS = 10
@@ -19,6 +20,11 @@ export async function POST(req: NextRequest) {
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) {
     return NextResponse.json({ error: 'Não autenticado.' }, { status: 401 })
+  }
+
+  // 10 novos anúncios por hora por usuário
+  if (!rateLimit(`listing:${user.id}`, 10, 60 * 60 * 1000)) {
+    return NextResponse.json({ error: 'Muitas requisições. Tente novamente em instantes.' }, { status: 429 })
   }
 
   const { data: profile } = await supabase
