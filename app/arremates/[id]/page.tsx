@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { Trophy, Star, MessageSquare, ChevronLeft } from 'lucide-react'
+import { Trophy, Star, MessageSquare, ChevronLeft, AlertTriangle } from 'lucide-react'
 
 interface PageProps { params: Promise<{ id: string }> }
 
@@ -39,6 +39,15 @@ export default async function ArremateDetailPage({ params }: PageProps) {
   const isWinner = winner?.id === user.id
 
   if (!isSeller && !isWinner) notFound()
+
+  // Verifica disputa existente
+  const { count: disputeCount } = await service
+    .from('disputes')
+    .select('id', { count: 'exact', head: true })
+    .eq('listing_id', id)
+    .in('status', ['aberta', 'em_analise'])
+
+  const hasOpenDispute = (disputeCount ?? 0) > 0
 
   // Verifica se já avaliou
   const { count: reviewCount } = await supabase
@@ -120,6 +129,22 @@ export default async function ArremateDetailPage({ params }: PageProps) {
               >
                 <MessageSquare className="w-4 h-4" />
                 Abrir conversa
+              </Link>
+            )}
+
+            {/* Botão disputa */}
+            {hasOpenDispute ? (
+              <div className="flex items-center justify-center gap-2 w-full bg-gray-100 text-gray-400 font-medium py-3 rounded-xl text-sm">
+                <AlertTriangle className="w-4 h-4" />
+                Disputa em aberto
+              </div>
+            ) : (
+              <Link
+                href={`/disputas/nova?listing_id=${id}`}
+                className="flex items-center justify-center gap-2 w-full border border-red-200 hover:bg-red-50 text-red-600 font-medium py-3 rounded-xl text-sm transition-colors"
+              >
+                <AlertTriangle className="w-4 h-4" />
+                Abrir disputa
               </Link>
             )}
           </div>
